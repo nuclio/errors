@@ -113,7 +113,7 @@ func (err *Error) Error() string {
 }
 
 func (err *Error) Unwrap() error {
-	return err.Cause()
+	return err.cause
 }
 
 // Cause returns the cause of the error
