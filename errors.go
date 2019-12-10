@@ -112,6 +112,10 @@ func (err *Error) Error() string {
 	return err.message
 }
 
+func (err *Error) Unwrap() error {
+	return err.Cause()
+}
+
 // Cause returns the cause of the error
 func (err *Error) Cause() error {
 	return err.cause
