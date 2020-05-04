@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"runtime"
 	"strings"
 )
@@ -238,8 +239,10 @@ func RootCause(err error) error {
 	for {
 		cause := Cause(currentErr)
 
-		// if there's a cause go deeper
-		if cause == nil || cause == currentErr {
+		// if there's no cause, we're done
+		// if the cause is not comparabile, it's not an Error and we're done
+		// if the cause == the error, we're done since that's what Cause() returns
+		if cause == nil || !reflect.TypeOf(cause).Comparable() || cause == currentErr {
 			break
 		}
 
