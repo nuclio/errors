@@ -11,6 +11,7 @@ package errors
 
 import (
 	"bytes"
+	buildinterrors "errors"
 	"fmt"
 	"io"
 	"os"
@@ -37,7 +38,7 @@ func init() {
 	ShowLineInfo = len(os.Getenv("NUCLIO_NO_ERROR_LINE_INFO")) == 0
 }
 
-// caller return the caller informatin (file, line)
+// caller return the caller information (file, line)
 // Note this is sensitive to where it's called
 func caller() (string, int) {
 	pcs := make([]uintptr, 1)
@@ -106,6 +107,10 @@ func Wrapf(err error, format string, args ...interface{}) error {
 		errObj.fileName, errObj.lineNumber = caller()
 	}
 	return errObj
+}
+
+func Is(base, target error) bool {
+	return buildinterrors.Is(base, target)
 }
 
 // Error is the string representation of the error

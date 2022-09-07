@@ -2,6 +2,7 @@ package errors
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"path"
@@ -13,6 +14,26 @@ import (
 
 type ErrorsTestSuite struct {
 	suite.Suite
+}
+
+func (suite *ErrorsTestSuite) TestIs() {
+	message := "hello"
+
+	// the fact they have same message, does not mean they are the same error
+	suite.Require().Equal(false, Is(New(message), New(message)))
+
+	// the fact they have same message, does not mean they are the same error, even when wrapped
+	suite.Require().Equal(false, Is(Wrap(New(message), "wrapped"), New(message)))
+
+	// error is indeed a context cancelled
+	suite.Require().Equal(true, Is(context.Canceled, context.Canceled))
+	suite.Require().Equal(true, Is(Wrap(context.Canceled, "wrapped"), context.Canceled))
+
+	// error is indeed someErr
+	someErr := errors.New("some error")
+	suite.Require().Equal(true, Is(someErr, someErr))
+	suite.Require().Equal(true, Is(Wrap(someErr, "wrapped"), someErr))
+	suite.Require().Equal(true, Is(Wrap(Wrap(someErr, "wrapped"), "TopWrapped"), someErr))
 }
 
 func (suite *ErrorsTestSuite) TestNew() {
