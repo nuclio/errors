@@ -1,15 +1,19 @@
 /*
 Copyright 2019 The Nuclio Authors.
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
     http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 // Package errors provides an api similar to github.com/nuclio/nuclio/pkg/errors
 // However we don't carry stack trace around for performance
 // (see https://github.com/pkg/errors/issues/124)
@@ -23,6 +27,7 @@ package errors
 
 import (
 	"bytes"
+	buildinterrors "errors"
 	"fmt"
 	"io"
 	"os"
@@ -49,7 +54,7 @@ func init() {
 	ShowLineInfo = len(os.Getenv("NUCLIO_NO_ERROR_LINE_INFO")) == 0
 }
 
-// caller return the caller informatin (file, line)
+// caller return the caller information (file, line)
 // Note this is sensitive to where it's called
 func caller() (string, int) {
 	pcs := make([]uintptr, 1)
@@ -118,6 +123,10 @@ func Wrapf(err error, format string, args ...interface{}) error {
 		errObj.fileName, errObj.lineNumber = caller()
 	}
 	return errObj
+}
+
+func Is(base, target error) bool {
+	return buildinterrors.Is(base, target)
 }
 
 // Error is the string representation of the error
@@ -297,7 +306,7 @@ func (err *Error) Format(s fmt.State, verb rune) {
 		}
 		fallthrough
 	case 's':
-		fmt.Fprintf(s, err.Error()) // nolint: errcheck
+		fmt.Fprint(s, err.Error()) // nolint: errcheck
 	case 'q':
 		fmt.Fprintf(s, "%q", err.Error()) // nolint: errcheck
 	}
